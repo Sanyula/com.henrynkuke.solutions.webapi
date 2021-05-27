@@ -25,7 +25,7 @@ public class CatalogProcessor {
 	}
 
 	
-	final static String PASSWORD = "password";
+	final static String PASSWORD = "password2";
 	
 	public static void main(String args[]) throws FileNotFoundException, IOException {
 	
