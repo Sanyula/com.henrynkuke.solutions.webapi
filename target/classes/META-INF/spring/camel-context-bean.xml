@@ -1,0 +1,66 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://camel.apache.org/schema/osgi"
+	xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+	xmlns:ctx="http://www.springframework.org/schema/context" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:camel="http://camel.apache.org/schema/spring"
+	xmlns:cxf="http://camel.apache.org/schema/cxf" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:httpj="http://cxf.apache.org/transports/http-jetty/configuration"
+    xmlns:sec="http://cxf.apache.org/configuration/security" xmlns:http="http://cxf.apache.org/transports/http/configuration"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://camel.apache.org/schema/osgi http://camel.apache.org/schema/osgi/camel-osgi.xsd
+       http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd
+       http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+       http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+       http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd
+       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+        http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+       http://servicemix.apache.org/cxfbc/1.0 http://servicemix.apache.org/cxfbc/1.0/servicemix-cxf-bc.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://cxf.apache.org/transports/http/configuration         http://cxf.apache.org/schemas/configuration/http-conf.xsd
+        http://cxf.apache.org/transports/http-jetty/configuration   http://cxf.apache.org/schemas/configuration/http-jetty.xsd
+        http://cxf.apache.org/configuration/security                http://cxf.apache.org/schemas/configuration/security.xsd">
+
+
+	<bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+	<bean id="catalogBean"          class="com.henrynkuke.solutions.webapi.processor.CatalogProcessor"/>
+	<bean id="catalogResource"       class="com.henrynkuke.solutions.webapi.resources.CatalogResources"/>
+	
+	
+	
+		<bean id="propertyPlaceholderConfigurer"
+		      class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
+		  <constructor-arg ref="configurationEncryptor" />
+		  <property name="location" value="config.properties" />
+		</bean>
+		 
+		<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+		  <property name="config" ref="environmentVariablesConfiguration" />
+		</bean>
+		 
+		<bean id="environmentVariablesConfiguration"
+		      class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+		  <property name="algorithm" value="PBEWithMD5AndDES" />
+		  <!--<property name="passwordEnvName" value="CAS_PBE_PASSWORD" />  -->
+		  <property name="password" value="password" />
+		</bean>
+	
+		<bean id="testJaspt" class="org.json.simple.JSONObject" destroy-method="close">
+			<property name="param"><value>${datasource.username}</value></property>
+		</bean>
+
+		<!-- expose service -->
+		<cxf:rsServer id="catalogServer" address="${webapi.base_url}/catalog"
+			staticSubresourceResolution="true" >
+			<cxf:serviceBeans>
+				<ref bean="catalogResource" />
+			</cxf:serviceBeans>
+		</cxf:rsServer>	
+
+</beans>
